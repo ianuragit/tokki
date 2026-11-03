@@ -16,6 +16,8 @@ export interface DebugEntry {
 
 class DebugLog {
   enabled = false;
+  /** Also print entries to stdout (when debug was forced from the command line). */
+  echo = false;
   private file = '';
   private entries: (DebugEntry & { at: string })[] = [];
   private timer: NodeJS.Timeout | null = null;
@@ -38,7 +40,7 @@ class DebugLog {
     if (!this.enabled) return;
     this.entries.push({ at: new Date().toISOString(), ...e });
     if (this.entries.length > MAX_ENTRIES) this.entries.splice(0, this.entries.length - MAX_ENTRIES);
-    if (process.argv.includes('--debug')) console.log('[tokki:debug]', e.kind, e.provider, e.url ?? e.message ?? '');
+    if (this.echo) console.log('[tokki:debug]', e.kind, e.provider, e.url ?? e.message ?? '');
     if (!this.timer) this.timer = setTimeout(() => this.flush(), 500);
   }
 

@@ -4,7 +4,10 @@
  * Flags:
  *   --dev    show developer menu items (mock data cycling)
  *   --mock   start with mock data instead of real polling
- *   --debug  enable DEBUG logging for this run (also toggleable from the menu)
+ *   --debug / --debug-mode / TOKKI_DEBUG=1
+ *            enable DEBUG logging for this run (also toggleable from the menu).
+ *            Unpackaged Electron rejects a bare --debug (Node DEP0062), so use
+ *            --debug-mode with `npm run dev`.
  */
 import { app, BrowserWindow, ipcMain, Menu, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import type { ProviderId, Settings } from '../shared/types';
@@ -25,7 +28,7 @@ import { nextScenario } from './mock';
 const argv = process.argv;
 const DEV = argv.includes('--dev') || !app.isPackaged;
 const START_MOCK = argv.includes('--mock');
-const FORCE_DEBUG = argv.includes('--debug');
+export const FORCE_DEBUG = argv.includes('--debug') || argv.includes('--debug-mode') || process.env.TOKKI_DEBUG === '1';
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -121,6 +124,7 @@ function init() {
   settings.load();
   debugLog.init(app.getPath('userData'));
   debugLog.enabled = settings.get().debug || FORCE_DEBUG;
+  debugLog.echo = FORCE_DEBUG;
   store.loadCache();
 
   providers = createProviders(loadExtractorConfig());

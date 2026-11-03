@@ -30,6 +30,11 @@ interface PendingResponse {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Resolve with `fallback` if `p` doesn't settle in time (page scripts can hang on stuck pages). */
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([p.catch(() => fallback), new Promise<T>((r) => setTimeout(() => r(fallback), ms))]);
+}
+
 function isJsonish(mime: string, url: string): boolean {
   return /json/i.test(mime) || /\.json(\?|$)/i.test(url);
 }
@@ -70,10 +75,11 @@ export async function runExtraction(win: BrowserWindow, opts: EngineOptions): Pr
   const readBody = async (requestId: string, p: PendingResponse, relevant: boolean) => {
     let text = '';
     try {
-      const res = (await dbg.sendCommand('Network.getResponseBody', { requestId })) as {
+      const res = (await withTimeout(dbg.sendCommand('Network.getResponseBody', { requestId }), 5000, null)) as {
         body: string;
         base64Encoded: boolean;
-      };
+      } | null;
+      if (!res) return;
       text = res.base64Encoded ? Buffer.from(res.body, 'base64').toString('utf8') : res.body;
     } catch {
       return; // body evicted or window gone
@@ -114,37 +120,48 @@ export async function runExtraction(win: BrowserWindow, opts: EngineOptions): Pr
   };
 
   try {
+    // A fresh webContents has no renderer until it navigates, and CDP commands
+    // would wait for one, so commit a blank page first.
+    await withTimeout(wc.loadURL('about:blank'), 5000, undefined);
     try {
       dbg.attach('1.3');
+      dbg.on('message', onMessage as any);
+      const ok = await withTimeout(dbg.sendCommand('Network.enable').then(() => true), 5000, false);
+      if (!ok) debugLog.add({ kind: 'note', provider: providerId, message: 'Network.enable timed out; DOM fallback only' });
     } catch (e) {
       debugLog.add({ kind: 'note', provider: providerId, message: `debugger attach failed: ${e}` });
     }
-    dbg.on('message', onMessage as any);
-    if (dbg.isAttached()) await dbg.sendCommand('Network.enable');
 
-    // loadURL rejects on some client-side redirects (ERR_ABORTED); that's fine.
-    await wc.loadURL(cfg.usageUrl).catch((e) =>
-      debugLog.add({ kind: 'note', provider: providerId, message: `loadURL: ${String(e).slice(0, 200)}` }),
-    );
+    // Don't await loadURL: it can reject on client-side redirects (ERR_ABORTED)
+    // or never settle on a stuck page. The polling loop below enforces the deadline.
+    let loadFailed = '';
+    wc.loadURL(cfg.usageUrl).catch((e) => {
+      loadFailed = String(e).slice(0, 200);
+      debugLog.add({ kind: 'note', provider: providerId, message: `loadURL: ${loadFailed}` });
+    });
 
     const deadline = Date.now() + cfg.timeoutMs;
     while (Date.now() < deadline) {
       if (win.isDestroyed()) throw new Error('window destroyed');
       if (firstHitAt && Date.now() - firstHitAt >= cfg.settleMs) break;
       if (authFailed || isLoggedOutUrl()) break;
+      if (loadFailed && !/ERR_ABORTED/.test(loadFailed)) break; // network error, DNS, offline…
       await sleep(400);
     }
-    await Promise.allSettled(bodyReads);
+    await withTimeout(Promise.allSettled(bodyReads), 5000, []);
     const finalUrl = wc.getURL();
     debugLog.add({ kind: 'note', provider: providerId, message: `final URL: ${finalUrl}` });
 
     if (parsed.length) return toResult(mergeDetails(parsed), 'network');
     if (isLoggedOutUrl() || authFailed) return loggedOut();
 
-    if (cfg.sessionCheck && (await sessionLoggedOut(wc, cfg.sessionCheck))) return loggedOut();
+    if (loadFailed && !/ERR_ABORTED/.test(loadFailed)) {
+      return { percent: null, error: `could not load page (${loadFailed.match(/ERR_[A-Z_]+/)?.[0] ?? 'network error'})`, fetchedAt: Date.now() };
+    }
+    if (cfg.sessionCheck && (await withTimeout(sessionLoggedOut(wc, cfg.sessionCheck), 8000, false))) return loggedOut();
 
     // Fallback: scrape the rendered page.
-    const hits = await scrapeDom(wc, cfg);
+    const hits = await withTimeout(scrapeDom(wc, cfg), 5000, [] as DomHit[]);
     debugLog.add({ kind: 'dom', provider: providerId, url: finalUrl, hits });
     const details = domHitsToDetails(hits);
     if (details.length) return toResult(details, 'dom');

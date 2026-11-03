@@ -1,7 +1,7 @@
 {
   "name": "tokki",
   "version": "0.1.0",
-  "description": "Tokki — a tiny rabbit desktop pet that shows your ChatGPT and Claude subscription usage.",
+  "description": "Tokki \u2014 a tiny rabbit desktop pet that shows your ChatGPT and Claude subscription usage.",
   "main": "dist/main/main.js",
   "author": "Anurag",
   "license": "MIT",
@@ -17,7 +17,8 @@
     "test": "node scripts/build.mjs && node --test test/*.test.cjs",
     "dist:win": "npm run build && electron-builder --win nsis portable --x64 --publish never",
     "dist:mac": "npm run build && electron-builder --mac dmg --arm64 --x64 --publish never",
-    "dist:linux": "npm run build && electron-builder --linux AppImage --x64 --publish never"
+    "dist:linux": "npm run build && electron-builder --linux AppImage --x64 --publish never",
+    "dev:debug": "node scripts/build.mjs && electron . --dev --debug-mode"
   },
   "build": {
     "appId": "com.tokki.app",
@@ -60,6 +61,13 @@
     "linux": {
       "icon": "build/icon.png",
       "category": "Utility"
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeCliInspectArguments": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableCookieEncryption": true,
+      "onlyLoadAppFromAsar": true
     }
   },
   "devDependencies": {

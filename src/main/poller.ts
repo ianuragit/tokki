@@ -91,7 +91,12 @@ export class Poller {
     win.webContents.setAudioMuted(true);
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     try {
-      return await provider.extract(win);
+      // Hard upper bound so a misbehaving page can never stall the poller.
+      const cap = 90_000;
+      return await Promise.race([
+        provider.extract(win),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timed out')), cap)),
+      ]);
     } catch (e) {
       debugLog.add({ kind: 'note', provider: id, message: `extract threw: ${e}` });
       return { percent: null, error: String(e), fetchedAt: Date.now() };

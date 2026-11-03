@@ -29,7 +29,66 @@ Tokki is a tiny rabbit that sits on your desktop and shows how much of your
 - The debug log is local only. Before writing, it redacts token, secret,
   cookie and session-key fields, JWTs and email addresses.
 
-## Setup
+## Downloading & installing
+
+You don't need Node.js or any build tools. GitHub Actions builds the installers.
+
+### Where to find builds
+
+| Kind | Where | When it's built |
+| --- | --- | --- |
+| **Test builds** | **Actions** tab → **Build** workflow → open a run → **Artifacts** at the bottom of the page | Every push to `main`, or click **Run workflow** to build on demand |
+| **Releases** | **Releases** on the repo's front page | Whenever a `v*` tag is created (see [Making a release](#making-a-release)) |
+
+The artifacts are zip files (you must be signed in to GitHub to download them,
+and they are kept for 30 days):
+
+- **`Tokki-windows`** contains `Tokki-Setup-<version>.exe` (installer) and
+  `Tokki-<version>-portable.exe` (runs without installing).
+- **`Tokki-mac`** contains `Tokki-<version>-arm64.dmg` (Apple Silicon, M1 and
+  later) and `Tokki-<version>-x64.dmg` (Intel Macs).
+
+Release pages list the same files individually.
+
+### Windows: getting past SmartScreen
+
+The builds aren't code-signed, so Windows warns you the first time:
+
+1. Run `Tokki-Setup-<version>.exe` (or the portable `.exe`).
+2. When **"Windows protected your PC"** appears, click **More info**, then **Run anyway**.
+3. Tokki appears as a rabbit near the bottom-right of the screen, with an icon
+   in the system tray. Click the **^** arrow in the taskbar if the icon is hidden,
+   and drag it onto the taskbar to keep it visible.
+
+### macOS: getting past Gatekeeper
+
+The builds aren't signed or notarized, so macOS blocks the first launch:
+
+1. Open the `.dmg` and drag **Tokki** into **Applications**.
+2. In Applications, **right-click (or Control-click) Tokki → Open**, then
+   click **Open** in the dialog. On macOS 15 and later, if there is no
+   **Open** button: click **Done**, go to **System Settings → Privacy &
+   Security**, scroll down, click **Open Anyway** next to the Tokki message,
+   then confirm.
+3. If macOS says **"Tokki is damaged and can't be opened"**, that's the
+   download quarantine flag on an unsigned app, not real damage. Clear it in
+   Terminal, then open Tokki again:
+
+   ```bash
+   xattr -cr /Applications/Tokki.app
+   ```
+
+Tokki has no Dock icon. Look for the rabbit and the `C 42% · G 67%` text in the menu bar.
+
+### First things to try
+
+1. Log in to both services in the windows that open on first launch, then close them.
+2. Hover over the rabbit to see the details. Right-click it (or use the tray
+   or menu bar icon) to open the menu.
+3. Choose **Preview moods (mock data)** several times to see every rabbit mood,
+   then **Back to real data**.
+
+## Developing locally (optional)
 
 Requires Node.js 20 or later (22 recommended).
 
@@ -46,7 +105,7 @@ Other run modes:
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Build and run with dev menu items |
-| `npm run dev:mock` | Run with mock data. Use **Dev: cycle mock data** in the right-click menu to see every mood |
+| `npm run dev:mock` | Run with mock data. Use **Preview next mood** in the right-click menu to see every mood |
 | `npm run dev:debug` | Run with debug logging forced on (also printed to the terminal) |
 | `npm test` | Unit tests for parsers, moods and the tray icon renderer |
 | `npm run typecheck` | TypeScript check |
@@ -65,8 +124,11 @@ the services, turn it off in **Settings** so Tokki doesn't look confused about i
 ## Using Tokki
 
 - **Drag** the widget anywhere. Its position is saved in `settings.json`.
-- **Right-click** for: Refresh now, Hide Tokki, Compact mode, Log in…,
-  Debug mode, Launch at login, Settings…, Quit.
+- **Right-click** for: Refresh now, Hide Tokki, Compact mode, Log in to
+  Claude/ChatGPT…, Reset logins…, Debug mode, Open debug log folder, Preview
+  moods (mock data), Launch at login, Settings…, Quit.
+- **Reset logins…** wipes both saved sessions inside Tokki (it doesn't affect
+  your browser). Use it to switch accounts or to start fresh.
 - **Tray**: the same menu, plus Show/Hide Tokki. On Windows, a left click toggles the widget.
 - **Compact mode** hides the rabbit and shows only the pill.
 - The refresh interval defaults to 5 minutes and can be changed in Settings.
@@ -105,7 +167,7 @@ To turn it on, use any one of these:
   Unpackaged Electron rejects a bare `--debug` as an obsolete Node flag, so in
   development use `--debug-mode` or `TOKKI_DEBUG=1` instead.
 
-Then choose **Refresh now** and **Open debug log**. Look for the entry whose
+Then choose **Refresh now** and **Open debug log folder**. Look for the entry whose
 `body` contains your usage numbers. Its `url` and the path to the numbers are
 what the extractor needs.
 
@@ -194,6 +256,25 @@ test case in `test/parse.test.cjs`.
 | `?` with "could not find usage on page" | Open the login window once. A Cloudflare "verify you are human" check may need solving in a visible window |
 | `?` with "could not load page" | Network or DNS problem. Tokki keeps the last known value and tries again next interval |
 
+## Reporting extraction problems
+
+If a service shows `?`, a wrong number, or `login` even though you're logged in:
+
+1. Right-click Tokki (or open the tray or menu bar menu) and tick **Debug mode**.
+2. Choose **Refresh now** and wait about 30 seconds.
+3. Choose **Open debug log folder**. Your file manager opens with
+   **`debug-log.json`** selected.
+4. Share that file in a GitHub issue, together with what the real usage page
+   shows (a screenshot of claude.ai → Settings → Usage, or ChatGPT's usage
+   page, is ideal).
+5. Untick **Debug mode** when you're done.
+
+`debug-log.json` contains the URLs and the first part of each JSON response
+the usage pages loaded. Tokki removes tokens, secrets, cookies, session keys
+and email addresses before writing it. It never contains your cookies, but
+skim it before posting publicly, since it may include things like your
+organization or plan name.
+
 ## Building
 
 ```bash
@@ -224,9 +305,9 @@ Packaged builds turn off the Electron fuses for Node CLI/inspect arguments,
 `NODE_OPTIONS` and run-as-node. This is hardening, and it also lets
 `--debug` reach the app instead of being rejected as an obsolete Node flag.
 
-Builds are unsigned. On macOS, the first time you open the app, right-click
-it and choose **Open**. On Windows, SmartScreen may ask you to confirm with
-**More info → Run anyway**.
+Builds are unsigned. electron-builder skips code signing and notarization
+(`mac.identity: null`, `mac.notarize: false`, `CSC_IDENTITY_AUTO_DISCOVERY=false`).
+See [Downloading & installing](#downloading--installing) for how to open them.
 
 App icons are generated from the rabbit design and committed. To regenerate
 them after editing the SVG in `scripts/gen-icons.mjs`:
@@ -235,19 +316,26 @@ them after editing the SVG in `scripts/gen-icons.mjs`:
 npm run icons
 ```
 
-### Releases
+### CI builds
 
-Pushing a tag such as `v0.1.0` runs `.github/workflows/release.yml`. It builds
-on `windows-latest` and `macos-latest` and attaches the installers to a
-GitHub Release:
+`.github/workflows/build.yml` runs on `windows-latest` and `macos-latest`. It
+installs dependencies (with the npm cache), then type-checks, tests and
+builds the installers:
 
-```bash
-git tag v0.1.0
-```
+- **Push to `main` or Run workflow:** the installers are uploaded as the
+  `Tokki-windows` and `Tokki-mac` workflow artifacts.
+- **`v*` tag:** the same build, plus the installers are attached to the
+  GitHub Release for that tag.
 
-```bash
-git push origin v0.1.0
-```
+### Making a release
+
+Entirely on github.com:
+
+1. Bump `"version"` in `package.json` on `main` (installer names use it).
+2. Go to **Releases → Draft a new release → Choose a tag**, type e.g.
+   `v0.1.0`, and pick **Create new tag on publish**.
+3. Click **Publish release**. The Build workflow runs for the tag and adds the
+   installers to the release when it finishes, in about 10 minutes.
 
 ## Project layout
 

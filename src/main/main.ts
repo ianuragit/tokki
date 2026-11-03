@@ -2,14 +2,14 @@
  * Tokki — main process entry.
  *
  * Flags:
- *   --dev    show developer menu items (mock data cycling)
+ *   --dev    expose a test hook for automated smoke tests
  *   --mock   start with mock data instead of real polling
  *   --debug / --debug-mode / TOKKI_DEBUG=1
  *            enable DEBUG logging for this run (also toggleable from the menu).
  *            Unpackaged Electron rejects a bare --debug (Node DEP0062), so use
  *            --debug-mode with `npm run dev`.
  */
-import { app, BrowserWindow, ipcMain, Menu, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import type { ProviderId, Settings } from '../shared/types';
 import { createProviders } from '../providers';
 import type { Provider } from '../providers/types';
@@ -21,7 +21,10 @@ import { Poller } from './poller';
 import { Widget } from './widget';
 import { TokkiTray } from './tray';
 import { buildMenu, type MenuActions } from './menu';
-import { openLoginWindow } from './login';
+import { closeLoginWindows, openLoginWindow } from './login';
+import { clearProviderSession } from './sessions';
+import path from 'node:path';
+import fs from 'node:fs';
 import { openSettingsWindow, settingsWindow } from './settingsWindow';
 import { nextScenario } from './mock';
 
@@ -60,9 +63,29 @@ const actions: MenuActions = {
   isWidgetVisible: () => !!widget?.isVisible(),
   login: (id) => openLoginWindow(providers[id], () => void poller?.refreshNow(id)),
   setDebug: (v) => settings.update({ debug: v }),
-  openDebugLog: () => {
-    debugLog.flush();
-    void shell.openPath(debugLog.path);
+  openDebugFolder: () => {
+    debugLog.flush(); // makes sure debug-log.json exists
+    if (fs.existsSync(debugLog.path)) shell.showItemInFolder(debugLog.path);
+    else void shell.openPath(path.dirname(debugLog.path));
+  },
+  resetLogins: async () => {
+    const { response } = await dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Reset logins', 'Cancel'],
+      defaultId: 1,
+      cancelId: 1,
+      title: 'Reset logins',
+      message: 'Log Tokki out of Claude and ChatGPT?',
+      detail: 'This clears both saved sessions (cookies and site data) inside Tokki. Your browser is not affected. You will need to use “Log in to …” again.',
+    });
+    if (response !== 0) return;
+    closeLoginWindows();
+    await Promise.all((Object.keys(providers) as ProviderId[]).map((id) => clearProviderSession(id)));
+    debugLog.add({ kind: 'note', provider: '*', message: 'logins reset' });
+    if (!store.mock) {
+      store.resetAll();
+      void poller?.refreshNow();
+    }
   },
   openSettings: () => openSettingsWindow(),
   cycleMock: () => {
@@ -78,7 +101,6 @@ const actions: MenuActions = {
     store.emitChange();
     void poller?.refreshNow();
   },
-  showDevItems: DEV || START_MOCK,
   quit: () => app.quit(),
 };
 
@@ -160,7 +182,7 @@ function init() {
   broadcast();
 
   // Test hook for automated screenshots/smoke tests (dev builds only).
-  if (DEV) (globalThis as any).__tokki = { actions, store, settings, widget: () => widget };
+  if (DEV) (globalThis as any).__tokki = { actions, store, settings, widget: () => widget, menuLabels: (w: 'widget' | 'tray') => buildMenu(actions, w).items.map((i) => i.label).filter(Boolean) };
 
   if (START_MOCK) {
     actions.cycleMock();

@@ -25,3 +25,11 @@ export function providerSession(id: ProviderId): Session {
   }
   return ses;
 }
+
+/** Log out of a provider by wiping its partition (cookies, storage, cache). */
+export async function clearProviderSession(id: ProviderId): Promise<void> {
+  const ses = providerSession(id);
+  await ses.clearStorageData();
+  await ses.clearCache();
+  await ses.clearAuthCache();
+}

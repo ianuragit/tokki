@@ -86,6 +86,16 @@ class Store extends EventEmitter {
     this.emitChange();
   }
 
+  /** Forget all values (e.g. after "Reset logins"). */
+  resetAll() {
+    for (const id of PROVIDER_IDS) {
+      const v = this.views[id];
+      this.views[id] = { id, name: v.name, short: v.short, enabled: v.enabled, status: 'loading' };
+    }
+    this.saveCache();
+    this.emitChange();
+  }
+
   setRefreshing(v: boolean) {
     this.refreshing = v;
     this.emitChange();
@@ -97,7 +107,8 @@ class Store extends EventEmitter {
 
   get(): AppState {
     const s = settings.get();
-    const providers = PROVIDER_IDS.map((id) => ({ ...this.views[id], enabled: s.providers[id].enabled }));
+    // Mood preview shows both services even if one is disabled in Settings.
+    const providers = PROVIDER_IDS.map((id) => ({ ...this.views[id], enabled: this.mock || s.providers[id].enabled }));
     return {
       providers,
       thresholds: s.thresholds,

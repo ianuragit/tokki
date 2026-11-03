@@ -56,3 +56,14 @@ export function openLoginWindow(provider: Provider, onClosed: () => void): Brows
 export function hasOpenLoginWindows(): boolean {
   return [...open.values()].some((w) => !w.isDestroyed());
 }
+
+/** Close login windows without triggering their "refresh on close" callback. */
+export function closeLoginWindows(): void {
+  for (const w of open.values()) {
+    if (!w.isDestroyed()) {
+      w.removeAllListeners('closed');
+      w.destroy();
+    }
+  }
+  open.clear();
+}

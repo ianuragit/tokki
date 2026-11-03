@@ -4,18 +4,19 @@ import type { ProviderId } from '../shared/types';
 import { settings } from './settings';
 import { store } from './store';
 import { debugLog } from './debugLog';
+import { currentScenarioName } from './mock';
 
 export interface MenuActions {
   refresh(): void;
   setWidgetVisible(v: boolean): void;
   isWidgetVisible(): boolean;
   login(id: ProviderId): void;
+  resetLogins(): void;
   setDebug(v: boolean): void;
-  openDebugLog(): void;
+  openDebugFolder(): void;
   openSettings(): void;
   cycleMock(): void;
   exitMock(): void;
-  showDevItems: boolean;
   quit(): void;
 }
 
@@ -36,23 +37,24 @@ export function buildMenu(a: MenuActions, where: 'widget' | 'tray'): Menu {
     { type: 'separator' },
     { label: 'Log in to Claude…', click: () => a.login('claude') },
     { label: 'Log in to ChatGPT…', click: () => a.login('chatgpt') },
+    { label: 'Reset logins…', click: () => a.resetLogins() },
     { type: 'separator' },
     { label: 'Debug mode', type: 'checkbox', checked: debugLog.enabled, click: (m) => a.setDebug(m.checked) },
+    { label: 'Open debug log folder', click: () => a.openDebugFolder() },
+    { type: 'separator' },
+    // Available in every build so all rabbit moods can be checked without dev tools.
+    {
+      label: store.mock ? `Preview next mood (now: ${currentScenarioName()})` : 'Preview moods (mock data)',
+      click: () => a.cycleMock(),
+    },
   );
-  if (debugLog.enabled) items.push({ label: 'Open debug log', click: () => a.openDebugLog() });
-  if (a.showDevItems) {
-    items.push(
-      { type: 'separator' },
-      { label: 'Dev: cycle mock data', click: () => a.cycleMock() },
-      { label: 'Dev: use real data', enabled: store.mock, click: () => a.exitMock() },
-    );
-  }
+  if (store.mock) items.push({ label: 'Back to real data', click: () => a.exitMock() });
   items.push(
     { type: 'separator' },
     { label: 'Launch at login', type: 'checkbox', checked: s.launchAtLogin, click: (m) => settings.update({ launchAtLogin: m.checked }) },
     { label: 'Settings…', click: () => a.openSettings() },
     { type: 'separator' },
-    { label: 'Quit Tokki', role: undefined, click: () => a.quit() },
+    { label: 'Quit Tokki', click: () => a.quit() },
   );
   return Menu.buildFromTemplate(items);
 }

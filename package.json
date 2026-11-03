@@ -14,9 +14,9 @@
     "dev:mock": "node scripts/build.mjs && electron . --dev --mock",
     "start": "electron .",
     "icons": "node scripts/gen-icons.mjs",
-    "test": "node scripts/build.mjs && node --test test/*.test.cjs",
-    "dist:win": "npm run build && electron-builder --win nsis portable --x64 --publish never",
-    "dist:mac": "npm run build && electron-builder --mac dmg --arm64 --x64 --publish never",
+    "test": "npm run typecheck && node scripts/build.mjs && node --test test/*.test.cjs",
+    "dist:win": "npm run build && electron-builder --win --publish never",
+    "dist:mac": "npm run build && electron-builder --mac --publish never",
     "dist:linux": "npm run build && electron-builder --linux AppImage --x64 --publish never",
     "dev:debug": "node scripts/build.mjs && electron . --dev --debug-mode"
   },
@@ -37,7 +37,22 @@
     },
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "win": {
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": true
     },
     "nsis": {
       "oneClick": false,
@@ -53,7 +68,18 @@
       "identity": null,
       "extendInfo": {
         "LSUIElement": true
-      }
+      },
+      "notarize": false,
+      "hardenedRuntime": false,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
     },
     "dmg": {
       "artifactName": "${productName}-${version}-${arch}.${ext}"
@@ -68,7 +94,8 @@
       "enableNodeOptionsEnvironmentVariable": false,
       "enableCookieEncryption": true,
       "onlyLoadAppFromAsar": true
-    }
+    },
+    "forceCodeSigning": false
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

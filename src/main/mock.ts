@@ -63,3 +63,7 @@ export function nextScenario(): Scenario {
   index = (index + 1) % SCENARIOS.length;
   return SCENARIOS[index];
 }
+
+export function currentScenarioName(): string {
+  return index < 0 ? '' : SCENARIOS[index].name;
+}

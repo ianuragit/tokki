@@ -24,7 +24,7 @@ await Promise.all([
   build({
     ...common,
     sourcemap: false,
-    entryPoints: { parse: 'src/providers/parse.ts', mood: 'src/shared/mood.ts', pixelIcon: 'src/main/pixelIcon.ts' },
+    entryPoints: { parse: 'src/providers/parse.ts', mood: 'src/shared/mood.ts', pixelIcon: 'src/main/pixelIcon.ts', skins: 'src/renderer/skins.ts' },
     outdir: 'dist/lib',
     platform: 'node',
     format: 'cjs',

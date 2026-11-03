@@ -49,6 +49,16 @@ export interface ProviderView {
 
 export type Mood = 'perky' | 'tired' | 'sleepy' | 'confused';
 
+/** Character skins for the widget. 'tokki' (the rabbit) is the default. */
+export type SkinId = 'tokki' | 'tio' | 'santa' | 'tree';
+
+export const SKINS: { id: SkinId; name: string }[] = [
+  { id: 'tokki', name: 'Tokki the rabbit' },
+  { id: 'tio', name: 'Tió (Caga Tió)' },
+  { id: 'santa', name: 'Santa Claus' },
+  { id: 'tree', name: 'Christmas tree' },
+];
+
 export interface Thresholds {
   /** percent >= amber → amber/tired */
   amber: number;
@@ -60,6 +70,7 @@ export interface AppState {
   providers: ProviderView[];
   thresholds: Thresholds;
   compact: boolean;
+  skin: SkinId;
   mood: Mood;
   debug: boolean;
   mock: boolean;
@@ -70,6 +81,7 @@ export interface Settings {
   refreshMinutes: number;
   thresholds: Thresholds;
   compact: boolean;
+  skin: SkinId;
   widgetVisible: boolean;
   widgetPosition: { x: number; y: number } | null;
   launchAtLogin: boolean;

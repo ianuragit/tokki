@@ -1,10 +1,14 @@
-import type { Settings } from '../shared/types';
+import { SKINS, type SkinId, type Settings } from '../shared/types';
 
 const $ = <T extends HTMLElement = HTMLInputElement>(id: string) => document.getElementById(id) as T;
 const status = $<HTMLSpanElement>('status');
 let flashTimer: number | undefined;
 
+const skinSelect = $<HTMLSelectElement>('skin');
+for (const k of SKINS) skinSelect.add(new Option(k.name, k.id));
+
 function fill(s: Settings) {
+  skinSelect.value = s.skin;
   $('p-claude').checked = s.providers.claude.enabled;
   $('p-chatgpt').checked = s.providers.chatgpt.enabled;
   $('refreshMinutes').value = String(s.refreshMinutes);
@@ -38,6 +42,7 @@ $('red').addEventListener('change', () => save({ thresholds: { amber: num('amber
 for (const id of ['widgetVisible', 'compact', 'launchAtLogin', 'debug'] as const) {
   $(id).addEventListener('change', (e) => save({ [id]: (e.target as HTMLInputElement).checked }));
 }
+skinSelect.addEventListener('change', () => save({ skin: skinSelect.value as SkinId }));
 $('close').addEventListener('click', () => window.tokki.closeWindow());
 
 window.tokki.getSettings().then((s) => {

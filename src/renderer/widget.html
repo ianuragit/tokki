@@ -8,63 +8,8 @@
 </head>
 <body>
   <div id="root" class="mood-perky">
-    <div class="rabbit-wrap" aria-hidden="true">
-      <!-- Tokki the rabbit (original design). Moods are switched purely with CSS classes. -->
-      <svg class="rabbit" viewBox="0 0 64 64" width="64" height="64">
-        <!-- ears pivot at their base -->
-        <g class="ear ear-l">
-          <ellipse cx="24" cy="15" rx="5.2" ry="13" class="fur" />
-          <ellipse cx="24" cy="16.5" rx="2.4" ry="9" class="inner" />
-        </g>
-        <g class="ear ear-r">
-          <ellipse cx="40" cy="15" rx="5.2" ry="13" class="fur" />
-          <ellipse cx="40" cy="16.5" rx="2.4" ry="9" class="inner" />
-        </g>
-        <g class="head">
-          <ellipse cx="32" cy="57" rx="13" ry="7" class="fur" />
-          <ellipse cx="32" cy="40" rx="17.5" ry="15" class="fur" />
-          <ellipse cx="22.5" cy="45.5" rx="3.2" ry="2" class="blush" />
-          <ellipse cx="41.5" cy="45.5" rx="3.2" ry="2" class="blush" />
-
-          <!-- eyes: open -->
-          <g class="eyes eyes-open">
-            <g class="blinker">
-              <circle cx="25.5" cy="39.5" r="3" class="pupil" />
-              <circle cx="38.5" cy="39.5" r="3" class="pupil" />
-              <circle cx="26.5" cy="38.4" r="1" class="shine" />
-              <circle cx="39.5" cy="38.4" r="1" class="shine" />
-            </g>
-          </g>
-          <!-- eyes: half-closed (tired) -->
-          <g class="eyes eyes-half">
-            <path d="M22.5 39.5 a3 3 0 0 0 6 0 z" class="pupil" />
-            <path d="M35.5 39.5 a3 3 0 0 0 6 0 z" class="pupil" />
-            <path d="M22.3 39.6 q3.2 -1.3 6.4 0 M35.3 39.6 q3.2 -1.3 6.4 0" class="lid" />
-          </g>
-          <!-- eyes: closed (sleepy) -->
-          <g class="eyes eyes-closed">
-            <path d="M22.5 39.5 q3 2.6 6 0 M35.5 39.5 q3 2.6 6 0" class="lid" />
-          </g>
-          <!-- eyes: confused -->
-          <g class="eyes eyes-confused">
-            <circle cx="25.5" cy="39.5" r="2.4" class="pupil" />
-            <path d="M36 37.5 l5 4 M41 37.5 l-5 4" class="lid" />
-          </g>
-
-          <path d="M30.4 44.2 h3.2 l-1.6 1.9 z" class="nose" />
-          <path class="mouth mouth-smile" d="M32 46.1 q-1.6 2 -3.2 0.6 M32 46.1 q1.6 2 3.2 0.6" />
-          <path class="mouth mouth-flat" d="M29.8 47.6 h4.4" />
-          <ellipse class="mouth mouth-o" cx="32" cy="47.8" rx="1.2" ry="1.4" />
-          <path class="mouth mouth-wavy" d="M29 47.6 q1 -1 2 0 t2 0 t2 0" />
-        </g>
-
-        <g class="zzz">
-          <text x="47" y="13" class="z z1">z</text>
-          <text x="54" y="6" class="z z2">z</text>
-        </g>
-        <text x="51" y="35" class="qmark">?</text>
-      </svg>
-    </div>
+    <!-- The character SVG (skin) is injected by widget.ts from skins.ts. -->
+    <div class="char-wrap" id="char" aria-hidden="true"></div>
 
     <div class="pill" id="pill">
       <div class="cell" data-id="claude">

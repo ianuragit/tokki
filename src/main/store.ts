@@ -113,6 +113,7 @@ class Store extends EventEmitter {
       providers,
       thresholds: s.thresholds,
       compact: s.compact,
+      skin: s.skin,
       mood: computeMood(providers, s.thresholds),
       debug: debugLog.enabled,
       mock: this.mock,

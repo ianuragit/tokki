@@ -35,9 +35,9 @@ html, body {
   padding: 3px 4px 3px 2px;
 }
 
-/* ---------- rabbit ---------- */
-.rabbit-wrap { width: 64px; height: 64px; flex: none; }
-.rabbit { overflow: visible; display: block; }
+/* ---------- character (shared parts) ---------- */
+.char-wrap { width: 64px; height: 64px; flex: none; }
+.char { overflow: visible; display: block; }
 .fur { fill: var(--fur); stroke: var(--fur-stroke); stroke-width: 1.4; }
 .inner { fill: var(--inner); }
 .blush { fill: var(--blush); opacity: 0.55; }
@@ -107,6 +107,93 @@ html, body {
   50% { transform: rotate(10deg) translateY(-1px); }
 }
 
+/* ---------- Tió skin ---------- */
+.tio-leg { stroke: #6b4220; stroke-width: 3.2; stroke-linecap: round; fill: none; }
+.tio-bark { fill: #9a6233; stroke: #4a2c14; stroke-width: 1.4; }
+.tio-grain { stroke: #6e4321; stroke-width: 1; stroke-linecap: round; fill: none; opacity: 0.7; }
+.tio-blanket { fill: #d64545; stroke: #4a2c14; stroke-width: 1.2; }
+.tio-stripe { stroke: #fff4e0; stroke-width: 1.6; opacity: 0.85; }
+.tio-end { fill: #e8bb84; stroke: #6e4321; stroke-width: 1.4; }
+.tio-ring { fill: none; stroke: #c99057; stroke-width: 0.8; opacity: 0.45; }
+.tio-nose { fill: #b0713d; }
+.tio-cap { fill: #d62828; stroke: #5c1010; stroke-width: 1.2; stroke-linejoin: round; }
+.tio-capband { fill: none; stroke: #2c2533; stroke-width: 1.6; stroke-linecap: round; }
+.tio-tip { transform-box: view-box; transform-origin: 42px 18px; transition: transform 0.6s ease; }
+.mood-perky .tio-tip { animation: sway 4s ease-in-out infinite; }
+.mood-tired .tio-tip { transform: rotate(24deg); }
+.mood-sleepy .tio-tip { transform: rotate(48deg); }
+.mood-confused .tio-tip { transform: rotate(-14deg); }
+
+/* ---------- Santa skin ---------- */
+.santa-coat { fill: #d62828; stroke: #6e1414; stroke-width: 1.2; }
+.santa-skin { fill: #f8d5bd; stroke: #3a3340; stroke-width: 1.2; }
+.santa-beard, .santa-fur, .santa-stache { fill: #ffffff; stroke: #b9b3c2; stroke-width: 1; }
+.santa-brow { stroke: #ffffff; stroke-width: 1.8; stroke-linecap: round; fill: none; }
+.santa-nose { fill: #f29a85; }
+.santa-hat { fill: #d62828; stroke: #6e1414; stroke-width: 1.2; stroke-linejoin: round; }
+.santa-tip { transform-box: view-box; transform-origin: 36px 11px; transition: transform 0.6s ease; }
+.skin-santa .mouth { stroke: #7a2b2b; }
+.skin-santa .mouth-o { fill: #7a2b2b; }
+.mood-perky .santa-tip { animation: sway 3.5s ease-in-out infinite; }
+.mood-tired .santa-tip { transform: rotate(32deg); }
+.mood-sleepy .santa-tip { transform: rotate(62deg); }
+.mood-confused .santa-tip { transform: rotate(-12deg); }
+
+/* ---------- Christmas tree skin ---------- */
+.tree-leaves { fill: #2f9e44; stroke: #1b5e2a; stroke-width: 1.3; stroke-linejoin: round; }
+.tree-trunk { fill: #8a5a2b; stroke: #4a2c14; stroke-width: 1; }
+.tree-pot { fill: #c92a2a; stroke: #6e1414; stroke-width: 1.1; stroke-linejoin: round; }
+.tree-garland { fill: none; stroke: #ffd43b; stroke-width: 0.9; stroke-linecap: round; opacity: 0.8; }
+.skin-tree .pupil { fill: #142a18; }
+.skin-tree .lid, .skin-tree .mouth { stroke: #142a18; }
+.skin-tree .mouth-o { fill: #142a18; }
+.skin-tree .blush { opacity: 0.4; }
+.star { fill: #ffd43b; stroke: #c99a00; stroke-width: 0.7; stroke-linejoin: round; }
+.tree-star { transform-box: view-box; transform-origin: 32px 5.5px; transition: transform 0.6s ease; }
+.mood-perky .tree-star { animation: star-glow 2.6s ease-in-out infinite; }
+.mood-tired .tree-star { transform: rotate(14deg); }
+.mood-sleepy .tree-star { transform: rotate(32deg); }
+.mood-confused .tree-star { transform: rotate(-18deg); }
+
+/* Twinkling lights: opacity-only animations (cheap), staggered by class. */
+.bulb .halo { opacity: 0.42; }
+.c0 .spark, .c1 .spark, .c2 .spark, .c3 .spark, .c4 .spark, .c5 .spark { fill: #fff; opacity: 0.85; }
+.bulb { animation: twinkle 1.6s ease-in-out infinite; }
+.bulb.t1 { animation-duration: 2.1s; }
+.bulb.t2 { animation-duration: 1.25s; }
+.bulb.d1 { animation-delay: -0.3s; }
+.bulb.d2 { animation-delay: -0.7s; }
+.bulb.d3 { animation-delay: -1.1s; }
+.bulb.d4 { animation-delay: -0.5s; }
+.bulb.d5 { animation-delay: -1.4s; }
+.c0 circle { fill: #ff4d4d; }
+.c1 circle { fill: #ffd43b; }
+.c2 circle { fill: #4dabff; }
+.c3 circle { fill: #ff6fd8; }
+.c4 circle { fill: #ff9f1c; }
+.c5 circle { fill: #b2f2bb; }
+/* Tired: slower, dimmer. Sleepy: barely glowing. Confused: erratic blinking. */
+.mood-tired .bulb { animation-duration: 3.2s; opacity: 0.8; }
+.mood-sleepy .bulb { animation-name: twinkle-dim; animation-duration: 4.5s; }
+.mood-confused .bulb { animation-timing-function: steps(2, jump-none); animation-duration: 0.9s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@keyframes twinkle-dim {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.12; }
+}
+@keyframes star-glow {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.12) rotate(8deg); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(7deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
@@ -150,5 +237,5 @@ html, body {
 .refreshing .pill { border-color: rgba(185, 168, 255, 0.45); }
 
 /* compact mode: pill only */
-.compact .rabbit-wrap { display: none; }
+.compact .char-wrap { display: none; }
 .compact { padding: 3px; }

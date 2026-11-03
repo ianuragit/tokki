@@ -1,6 +1,6 @@
 /** Shared menu used by the widget's context menu and the tray. */
 import { Menu, type MenuItemConstructorOptions } from 'electron';
-import type { ProviderId } from '../shared/types';
+import { SKINS, type ProviderId } from '../shared/types';
 import { settings } from './settings';
 import { store } from './store';
 import { debugLog } from './debugLog';
@@ -34,6 +34,15 @@ export function buildMenu(a: MenuActions, where: 'widget' | 'tray'): Menu {
   }
   items.push(
     { label: 'Compact mode', type: 'checkbox', checked: s.compact, click: (m) => settings.update({ compact: m.checked }) },
+    {
+      label: 'Character',
+      submenu: SKINS.map((k) => ({
+        label: k.name,
+        type: 'radio' as const,
+        checked: s.skin === k.id,
+        click: () => settings.update({ skin: k.id, compact: false }),
+      })),
+    },
     { type: 'separator' },
     { label: 'Log in to Claude…', click: () => a.login('claude') },
     { label: 'Log in to ChatGPT…', click: () => a.login('chatgpt') },

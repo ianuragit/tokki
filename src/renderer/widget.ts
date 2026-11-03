@@ -1,7 +1,18 @@
-import type { AppState, ProviderView } from '../shared/types';
+import type { AppState, ProviderView, SkinId } from '../shared/types';
 import { levelFor, shownPercent } from '../shared/mood';
+import { SKIN_SVGS } from './skins';
 
 const root = document.getElementById('root')!;
+const charWrap = document.getElementById('char')!;
+let currentSkin: SkinId | null = null;
+
+function setSkin(skin: SkinId) {
+  if (skin === currentSkin) return;
+  currentSkin = skin;
+  // Static, bundled SVG markup (no user data), so innerHTML is safe here.
+  charWrap.innerHTML = SKIN_SVGS[skin] ?? SKIN_SVGS.tokki;
+}
+setSkin('tokki');
 
 function renderCell(p: ProviderView, state: AppState) {
   const cell = document.querySelector<HTMLElement>(`.cell[data-id="${p.id}"]`);
@@ -38,7 +49,8 @@ function renderCell(p: ProviderView, state: AppState) {
 }
 
 function render(state: AppState) {
-  root.className = `mood-${state.mood}`;
+  setSkin(state.skin);
+  root.className = `mood-${state.mood} skin-${state.skin}`;
   root.classList.toggle('compact', state.compact);
   root.classList.toggle('refreshing', state.refreshing);
   for (const p of state.providers) renderCell(p, state);

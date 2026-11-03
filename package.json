@@ -1,6 +1,6 @@
 {
   "name": "tokki",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tokki \u2014 a tiny rabbit desktop pet that shows your ChatGPT and Claude subscription usage.",
   "main": "dist/main/main.js",
   "author": "Anurag",

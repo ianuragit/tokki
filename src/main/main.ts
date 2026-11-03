@@ -114,7 +114,7 @@ function registerIpc() {
   ipcMain.handle('settings:get', (e) => (trusted(e) ? settings.get() : null));
   ipcMain.handle('settings:save', (e, patch: Partial<Settings>) => {
     if (!trusted(e) || typeof patch !== 'object' || !patch) return null;
-    const allowed: (keyof Settings)[] = ['refreshMinutes', 'thresholds', 'compact', 'widgetVisible', 'launchAtLogin', 'debug', 'providers'];
+    const allowed: (keyof Settings)[] = ['refreshMinutes', 'thresholds', 'compact', 'skin', 'widgetVisible', 'launchAtLogin', 'debug', 'providers'];
     const clean = Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k as keyof Settings)));
     return settings.update(clean as Partial<Settings>);
   });

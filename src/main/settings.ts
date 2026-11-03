@@ -3,12 +3,13 @@ import { app } from 'electron';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Settings } from '../shared/types';
+import { SKINS, type Settings } from '../shared/types';
 
 export const DEFAULT_SETTINGS: Settings = {
   refreshMinutes: 5,
   thresholds: { amber: 60, red: 85 },
   compact: false,
+  skin: 'tokki',
   widgetVisible: true,
   widgetPosition: null,
   launchAtLogin: false,
@@ -24,6 +25,7 @@ function settingsFile(): string {
 function sanitize(s: Settings): Settings {
   const clamp = (n: unknown, lo: number, hi: number, d: number) =>
     typeof n === 'number' && Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
+  if (!SKINS.some((k) => k.id === s.skin)) s.skin = 'tokki';
   s.refreshMinutes = clamp(s.refreshMinutes, 1, 240, DEFAULT_SETTINGS.refreshMinutes);
   s.thresholds.amber = clamp(s.thresholds.amber, 0, 100, 60);
   s.thresholds.red = clamp(s.thresholds.red, s.thresholds.amber, 100, 85);

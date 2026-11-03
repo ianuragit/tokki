@@ -9,6 +9,10 @@ Tokki is a tiny rabbit that sits on your desktop and shows how much of your
   - **60–85%**: tired, ears drooping, eyes half-closed
   - **over 85%**: asleep, eyes closed, `z z` floating up
   - **logged out or error**: confused, with a little `?`
+- Choose a character: **Tokki the rabbit** (default), **Tió** (the Catalan
+  Caga Tió log, wearing its red barretina), **Santa Claus**, or a
+  **Christmas tree** whose coloured lights twinkle. Every character shows all
+  four moods.
 - Numbers are coloured green, amber or red. You can change the thresholds in Settings.
 - Hover over the widget to see each limit, when it resets, and when it was last updated.
 - Live numbers also appear in the menu bar (macOS) or the system tray (Windows and Linux).
@@ -130,7 +134,11 @@ the services, turn it off in **Settings** so Tokki doesn't look confused about i
 - **Reset logins…** wipes both saved sessions inside Tokki (it doesn't affect
   your browser). Use it to switch accounts or to start fresh.
 - **Tray**: the same menu, plus Show/Hide Tokki. On Windows, a left click toggles the widget.
-- **Compact mode** hides the rabbit and shows only the pill.
+- **Character** (in the menu or in Settings) switches the skin: Tokki,
+  Tió, Santa Claus or the Christmas tree. Santa's and Tió's hat tips droop as
+  they get tired. The tree's lights twinkle, slow down when it's tired, dim
+  when it's sleepy, and blink erratically when it's confused.
+- **Compact mode** hides the character and shows only the pill.
 - The refresh interval defaults to 5 minutes and can be changed in Settings.
   Tokki also refreshes when your computer wakes from sleep.
 
@@ -345,7 +353,7 @@ src/
   providers/   claude.ts, chatgpt.ts, the shared CDP/DOM engine, pure parsers
   config/      extractors.json (URL patterns and field paths)
   preload/     the minimal window.tokki IPC bridge
-  renderer/    widget, hover card and settings pages (plain HTML/CSS/TS)
+  renderer/    widget, character skins (skins.ts), hover card and settings pages (plain HTML/CSS/TS)
   shared/      types and mood/threshold logic shared by main and renderers
 scripts/       build.mjs (esbuild), gen-icons.mjs
 test/          node:test unit tests

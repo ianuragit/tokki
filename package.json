@@ -1,0 +1,74 @@
+{
+  "name": "tokki",
+  "version": "0.1.0",
+  "description": "Tokki — a tiny rabbit desktop pet that shows your ChatGPT and Claude subscription usage.",
+  "main": "dist/main/main.js",
+  "author": "Anurag",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "build:fast": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "node scripts/build.mjs && electron . --dev",
+    "dev:mock": "node scripts/build.mjs && electron . --dev --mock",
+    "start": "electron .",
+    "icons": "node scripts/gen-icons.mjs",
+    "test": "node scripts/build.mjs && node --test test/*.test.cjs",
+    "dist:win": "npm run build && electron-builder --win nsis portable --x64 --publish never",
+    "dist:mac": "npm run build && electron-builder --mac dmg --arm64 --x64 --publish never",
+    "dist:linux": "npm run build && electron-builder --linux AppImage --x64 --publish never"
+  },
+  "build": {
+    "appId": "com.tokki.app",
+    "productName": "Tokki",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist/main/main.js"
+    },
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "win": {
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "mac": {
+      "icon": "build/icon.icns",
+      "category": "public.app-category.utilities",
+      "identity": null,
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "dmg": {
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Utility"
+    }
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.20.5",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2",
+    "png2icons": "^2.0.1",
+    "typescript": "^5.9.3"
+  }
+}

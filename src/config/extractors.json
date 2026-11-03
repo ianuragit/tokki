@@ -1,0 +1,54 @@
+{
+  "$comment": "Default extractor config. Copy to <userData>/extractors.json to override without rebuilding (keys are merged per provider). Regexes are JavaScript RegExp source strings, matched case-insensitively. Field paths are dot paths into the JSON response (numeric segments index arrays).",
+  "claude": {
+    "loginUrl": "https://claude.ai/login",
+    "usageUrl": "https://claude.ai/settings/usage",
+    "loggedOutUrlPatterns": ["claude\\.ai/login", "claude\\.ai/logout", "/oauth/"],
+    "responseUrlPatterns": ["/api/organizations/[^/]+/usage"],
+    "loggedOutStatusCodes": [401, 403],
+    "percentScale": "auto",
+    "limits": [
+      { "label": "5-hour session", "percentPath": "five_hour.utilization", "resetsAtPath": "five_hour.resets_at" },
+      { "label": "Weekly (all models)", "percentPath": "seven_day.utilization", "resetsAtPath": "seven_day.resets_at" },
+      { "label": "Weekly (Opus)", "percentPath": "seven_day_opus.utilization", "resetsAtPath": "seven_day_opus.resets_at" },
+      { "label": "Weekly (Sonnet)", "percentPath": "seven_day_sonnet.utilization", "resetsAtPath": "seven_day_sonnet.resets_at" }
+    ],
+    "autoKeys": ["utilization", "used_percent", "usage_percent", "percent_used"],
+    "dom": {
+      "progressSelectors": ["[role=\"progressbar\"][aria-valuenow]"],
+      "textPatterns": ["(\\d{1,3}(?:\\.\\d+)?)\\s*%\\s*used"]
+    },
+    "timeoutMs": 25000,
+    "settleMs": 1500
+  },
+  "chatgpt": {
+    "loginUrl": "https://chatgpt.com/auth/login",
+    "usageUrl": "https://chatgpt.com/codex/settings/usage",
+    "loggedOutUrlPatterns": ["auth\\.openai\\.com", "chatgpt\\.com/auth/", "/log-?in"],
+    "responseUrlPatterns": ["/backend-api/wham/usage", "/backend-api/.*usage"],
+    "loggedOutStatusCodes": [401],
+    "percentScale": "auto",
+    "limits": [
+      {
+        "label": "5-hour limit",
+        "percentPath": "rate_limit.primary_window.used_percent",
+        "resetsAtPath": "rate_limit.primary_window.reset_at",
+        "resetsInSecondsPath": "rate_limit.primary_window.reset_after_seconds"
+      },
+      {
+        "label": "Weekly limit",
+        "percentPath": "rate_limit.secondary_window.used_percent",
+        "resetsAtPath": "rate_limit.secondary_window.reset_at",
+        "resetsInSecondsPath": "rate_limit.secondary_window.reset_after_seconds"
+      }
+    ],
+    "autoKeys": ["used_percent", "utilization", "usage_percent", "percent_used"],
+    "sessionCheck": { "url": "/api/auth/session", "loggedInPath": "user" },
+    "dom": {
+      "progressSelectors": ["[role=\"progressbar\"][aria-valuenow]"],
+      "textPatterns": ["(\\d{1,3}(?:\\.\\d+)?)\\s*%\\s*(?:used|remaining|left)"]
+    },
+    "timeoutMs": 25000,
+    "settleMs": 1500
+  }
+}

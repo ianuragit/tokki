@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
+  <title>Tokki Settings</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <main id="form">
+    <h1>Tokki settings</h1>
+
+    <section>
+      <h2>Services</h2>
+      <label class="check"><input type="checkbox" id="p-claude" /> Track Claude</label>
+      <label class="check"><input type="checkbox" id="p-chatgpt" /> Track ChatGPT</label>
+    </section>
+
+    <section>
+      <h2>Refresh</h2>
+      <label class="field">Check every
+        <input type="number" id="refreshMinutes" min="1" max="240" step="1" /> minutes
+      </label>
+    </section>
+
+    <section>
+      <h2>Colour thresholds</h2>
+      <label class="field">Amber from <input type="number" id="amber" min="0" max="100" /> %</label>
+      <label class="field">Red above <input type="number" id="red" min="0" max="100" /> %</label>
+      <p class="hint">Green below amber. Tokki gets tired at amber and sleepy above red.</p>
+    </section>
+
+    <section>
+      <h2>Widget</h2>
+      <label class="check"><input type="checkbox" id="widgetVisible" /> Show the floating widget</label>
+      <label class="check"><input type="checkbox" id="compact" /> Compact mode (hide the rabbit)</label>
+      <label class="check"><input type="checkbox" id="launchAtLogin" /> Launch Tokki at login</label>
+    </section>
+
+    <section>
+      <h2>Troubleshooting</h2>
+      <label class="check"><input type="checkbox" id="debug" /> Debug mode (log usage-page JSON to debug-log.json)</label>
+    </section>
+
+    <footer>
+      <span id="status" class="hint"></span>
+      <button id="close">Done</button>
+    </footer>
+  </main>
+  <script src="settings.js"></script>
+</body>
+</html>

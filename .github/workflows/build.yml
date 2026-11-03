@@ -5,7 +5,7 @@ name: Build
 # - tag v*: same build, plus attach the installers to the GitHub Release for that tag
 on:
   push:
-    branches: [main]
+    branches: [main, claude/charming-ritchie-sko8mk] # TEMP: build this branch
     tags: ['v*']
   workflow_dispatch:
 

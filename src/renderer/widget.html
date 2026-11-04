@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:" />
+  <title>Tokki</title>
+  <link rel="stylesheet" href="widget.css" />
+</head>
+<body>
+  <div id="root" class="mood-perky">
+    <!-- The character SVG (skin) is injected by widget.ts from skins.ts. -->
+    <div class="char-wrap" id="char" aria-hidden="true"></div>
+
+    <div class="pill" id="pill">
+      <div class="cell" data-id="claude">
+        <span class="lbl">C</span><span class="val">…</span>
+      </div>
+      <div class="divider"></div>
+      <div class="cell" data-id="chatgpt">
+        <span class="lbl">G</span><span class="val">…</span>
+      </div>
+    </div>
+  </div>
+  <script src="widget.js"></script>
+</body>
+</html>
